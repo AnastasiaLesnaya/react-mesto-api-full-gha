@@ -2,9 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const { JWT_SECRET } = require('../config');
-
-const { NODE_ENV } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const { ValidationError, CastError } = mongoose.Error;
 
@@ -104,7 +102,7 @@ const authorizeUser = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((selectedUser) => {
-      const userToken = jwt.sign({ _id: selectedUser._id }, NODE_ENV === 'production' ? JWT_SECRET : 'supersecret', { expiresIn: '7d' });
+      const userToken = jwt.sign({ _id: selectedUser._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
       res.send({ userToken });
     })
     .catch(next);

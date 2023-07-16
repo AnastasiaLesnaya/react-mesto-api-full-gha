@@ -1,4 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
@@ -10,10 +12,10 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const cors = require('./middlewares/cors');
 
-const { MONGODB, PORT } = require('./config');
-
 // Роуты
 const mainRouter = require('./routes/index');
+
+const { PORT = 3000 } = process.env;
 
 const app = express();
 
@@ -26,19 +28,24 @@ const limiter = rateLimit({
 
 const responseHandler = require('./middlewares/res-handler');
 
+const MONGODB = 'mongodb://127.0.0.1:27017/mestodb';
+
 mongoose.connect(MONGODB, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
 });
 
+app.use(cors({
+  credentials: true,
+  origin: 'https://mestolesnoy.nomoredomains.work/',
+}));
+
 app.use(express.json());
 app.use(limiter);
 app.use(helmet());
 
 app.use(requestLogger);
-
-app.use(cors);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
