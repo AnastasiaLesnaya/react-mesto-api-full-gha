@@ -2,8 +2,6 @@ require('dotenv').config();
 // eslint-disable-next-line import/no-extraneous-dependencies
 const express = require('express');
 const mongoose = require('mongoose');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 
 const { PORT = 3001, MONGODB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
@@ -28,18 +26,16 @@ const responseHandler = require('./middlewares/res-handler');
 
 mongoose.connect(MONGODB);
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(limiter);
 app.use(helmet());
-app.use(cookieParser());
 
 // Массив доменов, с которых разрешены кросс-доменные запросы
 const allowedCors = [
-  'https://mesto.place.nomoredomains.work',
-  'http://mesto.place.nomoredomains.work',
-  'https://api.mesto.place.nomoredomains.work',
-  'http://api.mesto.place.nomoredomains.work',
+  'https://mestolesnoy.nomoredomains.work',
+  'http://mestolesnoy.nomoredomains.work',
+  'https://api.mestolesnoy.nomoredomains.work',
+  'http://api.mestolesnoy.nomoredomains.work',
   'https://localhost:3000',
   'http://localhost:3000',
   'https://localhost:3001',
