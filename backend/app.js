@@ -2,9 +2,9 @@ require('dotenv').config();
 // eslint-disable-next-line import/no-extraneous-dependencies
 const express = require('express');
 const mongoose = require('mongoose');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const cors = require('cors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3001, MONGODB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -12,7 +12,6 @@ const { PORT = 3001, MONGODB = 'mongodb://127.0.0.1:27017/mestodb' } = process.e
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
-const cors = require('./middlewares/cors');
 // Роуты
 const mainRouter = require('./routes/index');
 
@@ -25,13 +24,25 @@ const limiter = rateLimit({
 });
 const responseHandler = require('./middlewares/res-handler');
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 mongoose.connect(MONGODB);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(requestLogger);
+app.use(cors({
+  origin: 'https://mestolesnoy.nomoredomains.work',
+}));
+
 app.use(limiter);
 app.use(helmet());
-app.use(cookieParser());
-app.use(cors);
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
+app.use(errorLogger);
 app.use(mainRouter);
 app.use(errors());
 app.use(responseHandler);
