@@ -4,9 +4,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const cors = require('cors');
-const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3001, MONGODB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+const { PORT = 3006, MONGODB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
 // Защита сервера
 const helmet = require('helmet');
@@ -28,7 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 mongoose.connect(MONGODB);
-app.use(requestLogger);
+
 app.use(cors({
   origin: 'https://mestolesnoy.nomoredomains.work',
 }));
@@ -42,10 +41,10 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.use(errorLogger);
 app.use(mainRouter);
 app.use(errors());
 app.use(responseHandler);
+
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
