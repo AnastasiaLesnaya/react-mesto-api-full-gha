@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const cors = require('cors');
 
-const { PORT = 3006 } = process.env;
+const { PORT = 3000 } = process.env;
 
 // Защита сервера
 const helmet = require('helmet');
