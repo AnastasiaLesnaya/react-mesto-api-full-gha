@@ -4,8 +4,8 @@ const { ValidationError, CastError } = mongoose.Error;
 
 const Card = require('../models/card');
 
+// 201
 const { SUCCESS_CREATED } = require('../utils/response');
-
 // 400
 const BadRequests = require('../utils/errors/BadRequest');
 // 403
@@ -16,8 +16,7 @@ const NotFound = require('../utils/errors/NotFound');
 // Получаем карточки
 const getCardList = (req, res, next) => {
   Card.find({})
-    .populate(['owner', 'likes'])
-    .then((cardList) => res.send({ data: cardList }))
+    .then((cardList) => res.send(cardList))
     .catch((error) => next(error));
 };
 
@@ -25,7 +24,7 @@ const getCardList = (req, res, next) => {
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((cardObject) => res.status(SUCCESS_CREATED).send({ data: cardObject }))
+    .then((cardObject) => res.status(SUCCESS_CREATED).send(cardObject))
     .catch((error) => {
       if (error instanceof ValidationError) {
         next(new BadRequests('Переданы некорректные данные при создании карточки'));
@@ -44,7 +43,7 @@ const likeCard = (req, res, next) => {
   )
     .then((selectedCard) => {
       if (selectedCard) {
-        res.send({ data: selectedCard });
+        res.send(selectedCard);
       } else {
         next(new NotFound('Карточка не найдена'));
       }
@@ -67,7 +66,7 @@ const removeLikeCard = (req, res, next) => {
   )
     .then((selectedCard) => {
       if (selectedCard) {
-        res.send({ data: selectedCard });
+        res.send(selectedCard);
       } else {
         next(new NotFound('Карточка не найдена'));
       }

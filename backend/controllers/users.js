@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 const { ValidationError, CastError } = mongoose.Error;
-
-const User = require('../models/user');
 
 const { SUCCESS_CREATED, DUPLICATE_ERROR } = require('../utils/response');
 
@@ -20,7 +19,7 @@ const ConflictingRequest = require('../utils/errors/ConflictingRequest');
 // получаем пользователей
 const getUserList = (req, res, next) => {
   User.find({})
-    .then((userList) => res.send({ data: userList }))
+    .then((userList) => res.send(userList))
     .catch(next);
 };
 
@@ -29,14 +28,14 @@ const getUserId = (req, res, next) => {
   User.findById(req.params.userId)
     .then((selectedUser) => {
       if (selectedUser) {
-        res.send({ data: selectedUser });
+        res.send(selectedUser);
       } else {
         next(new NotFound('Пользователь по указанному _id не найден'));
       }
     })
     .catch((error) => {
       if (error instanceof CastError) {
-        next(new BadRequests('Некорректный _id запрашиваемого пользователя'));
+        next(new BadRequests('Некорректный _id пользователя'));
       } else { next(error); }
     });
 };
@@ -59,7 +58,9 @@ const registerUser = (req, res, next) => {
         next(new BadRequests('Переданы некорректные данные при создании пользователя'));
       } else if (error.code === DUPLICATE_ERROR) {
         next(new ConflictingRequest('Пользователь с указанной почтой уже существует'));
-      } else { next(error); }
+      } else {
+        next(error);
+      }
     });
 };
 
@@ -70,7 +71,7 @@ const updateUserData = (req, res, next) => {
     new: true,
     runValidators: true,
   })
-    .then((updatedData) => res.send({ data: updatedData }))
+    .then((updatedData) => res.send(updatedData))
     .catch((error) => {
       if (error instanceof ValidationError) {
         next(new BadRequests('Переданы некорректные данные при обновлении профиля'));
@@ -102,8 +103,8 @@ const authorizeUser = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((selectedUser) => {
-      const userToken = jwt.sign({ _id: selectedUser._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-      res.send({ userToken });
+      const token = jwt.sign({ _id: selectedUser._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      res.send({ token });
     })
     .catch(next);
 };
