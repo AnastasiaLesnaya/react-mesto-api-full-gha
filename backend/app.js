@@ -1,20 +1,23 @@
-require('dotenv').config();
 // eslint-disable-next-line import/no-extraneous-dependencies
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const cors = require('cors');
 
-const { PORT = 3006, MONGODB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+const { PORT = 3006 } = process.env;
 
 // Защита сервера
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 // Роуты
 const mainRouter = require('./routes/index');
 
 const app = express();
+app.use(cors());
+
 // https://www.npmjs.com/package/express-rate-limit
 // Для ограничения кол-ва запросов. Для защиты от DoS-атак.
 const limiter = rateLimit({
@@ -23,17 +26,13 @@ const limiter = rateLimit({
 });
 const responseHandler = require('./middlewares/res-handler');
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
+const MONGODB = 'mongodb://127.0.0.1:27017/mestodb';
 mongoose.connect(MONGODB);
 
-app.use(cors({
-  origin: 'https://mestolesnoy.nomoredomains.work',
-}));
-
+app.use(express.json());
 app.use(limiter);
 app.use(helmet());
+app.use(requestLogger);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -42,9 +41,11 @@ app.get('/crash-test', () => {
 });
 
 app.use(mainRouter);
+app.use(errorLogger);
 app.use(errors());
 app.use(responseHandler);
 
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(`App listening on port ${PORT}`);
 });
