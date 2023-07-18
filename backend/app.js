@@ -5,20 +5,25 @@ const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 
 const { PORT = 3000 } = process.env;
+
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 // Защита сервера
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { ALLOWED_CORS } = require('./middlewares/cors');
 
 // Роуты
 const mainRouter = require('./routes/index');
 
 const app = express();
-app.use(cors({
-  credentials: true,
-  origin: 'https://mestolesnoy.nomoredomains.work'
-}));
+app.use(cors(ALLOWED_CORS));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // https://www.npmjs.com/package/express-rate-limit
 // Для ограничения кол-ва запросов. Для защиты от DoS-атак.
@@ -31,8 +36,6 @@ const responseHandler = require('./middlewares/res-handler');
 const MONGODB = 'mongodb://127.0.0.1:27017/mestodb';
 mongoose.connect(MONGODB);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
 app.use(helmet());
 app.use(requestLogger);
