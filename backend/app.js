@@ -22,12 +22,12 @@ const app = express();
 const MONGODB = 'mongodb://127.0.0.1:27017/mestodb';
 mongoose.connect(MONGODB);
 
+app.use(cors);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cookieParser());
 app.use(requestLogger);
-app.use(cors);
 // https://www.npmjs.com/package/express-rate-limit
 // Для ограничения кол-ва запросов. Для защиты от DoS-атак.
 const limiter = rateLimit({
