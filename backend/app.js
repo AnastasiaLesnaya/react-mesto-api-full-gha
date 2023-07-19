@@ -2,32 +2,26 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
+
+const { PORT = 3000 } = process.env;
+const cors = require('cors');
+
 // Защита сервера
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { errors } = require('celebrate');
+
 const responseHandler = require('./middlewares/res-handler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const cors = require('./middlewares/cors');
 
 // Роуты
 const mainRouter = require('./routes/index');
-
-const { PORT = 3000 } = process.env;
 
 const app = express();
 
 const MONGODB = 'mongodb://127.0.0.1:27017/mestodb';
 mongoose.connect(MONGODB);
 
-app.use(cors);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(helmet());
-app.use(cookieParser());
-app.use(requestLogger);
 // https://www.npmjs.com/package/express-rate-limit
 // Для ограничения кол-ва запросов. Для защиты от DoS-атак.
 const limiter = rateLimit({
@@ -35,7 +29,11 @@ const limiter = rateLimit({
   max: 100,
 });
 
+app.use(cors);
+app.use(express.json());
 app.use(limiter);
+app.use(helmet());
+app.use(requestLogger);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
