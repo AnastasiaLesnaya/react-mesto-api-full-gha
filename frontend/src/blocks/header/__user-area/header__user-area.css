@@ -1,0 +1,14 @@
+.header__user-area {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 15px;
+}
+
+@media screen and (max-width: 670px) {
+  .header__user-area {
+    flex-wrap: wrap;
+    justify-content: right;
+    margin-right: 15px;
+  }
+}
