@@ -7,8 +7,8 @@
 
 ## Ссылки на проект
 
-IP-адрес: 51.250.3.146
+IP-адрес 51.250.3.146
 
-Frontend: https://mestolesnoy.nomoredomains.work/
+Frontend https://mestolesnoy.nomoredomains.work/
 
-Backend: https://api.mestolesnoy.nomoredomains.work/
+Backend https://api.mestolesnoy.nomoredomains.work/
