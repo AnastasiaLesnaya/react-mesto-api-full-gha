@@ -7,7 +7,7 @@
 
 ## Ссылки на проект
 
-IP-адрес 51.250.3.146
+IP 51.250.3.146
 
 Frontend https://mestolesnoy.nomoredomains.work/
 
